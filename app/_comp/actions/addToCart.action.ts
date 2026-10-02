@@ -1,38 +1,60 @@
-'use server'
+"use server";
 
-import { getMyToken } from "@/app/utilitis/getToken"
+import { getMyToken } from "@/app/utilitis/getToken";
 
 export async function AddToCart(productId: string) {
-    const token = await getMyToken()
+  const token = await getMyToken();
 
-console.log('Token exists:', !!token)
-console.log('Token length:', token?.length)
+  console.log("Token exists:", !!token);
+  console.log("Token length:", token?.length);
 
-    try {
-        const response = await fetch(`${process.env.NEXTAUTH_URL}/api/addProduct`, {
-            method: 'POST',
-            body: JSON.stringify({ productId: productId }),
-            headers: {
-                token: token || '',
-                'Content-Type': 'application/json'
-            }
-        });
+  // User is not logged in
+  if (!token) {
+    return {
+      success: false,
+      message: "Please Login",
+    };
+  }
 
-        const payload = await response.json();
-        console.log("API Response:", payload);
-        if (!token) {
-    throw new Error('Please Login');
-}
-        
-        if (!response.ok) {
-            throw new Error(payload.message || 'Failed to add product');
-        }
+  try {
+    const response = await fetch(
+      `${process.env.NEXTAUTH_URL}/api/addProduct`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          productId,
+        }),
+        headers: {
+          token,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-        return payload;
-        
-   } catch (error: unknown) {
+    const payload = await response.json();
+
+    console.log("API Response:", payload);
+
+    if (!response.ok) {
+      return {
+        success: false,
+        message: payload.message || "Failed to add product",
+      };
+    }
+
+    return {
+      success: true,
+      data: payload,
+    };
+  } catch (error: unknown) {
     console.error("Catch Error Details:", error);
-    const message = error instanceof Error ? error.message : 'Api failed';
-    throw new Error(message);
-}
+
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Something went wrong",
+    };
+  }
 }

@@ -2,6 +2,7 @@
 
 import React, { type ReactNode } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 import { AddToCart } from "../actions/addToCart.action";
 
 export default function AddBtn({
@@ -15,18 +16,19 @@ export default function AddBtn({
 }) {
   const queryClient = useQueryClient();
 
-  const {
-    mutate: addProduct,
-    isPending,
-    isError,
-    error,
-  } = useMutation({
+  const { mutate: addProduct, isPending } = useMutation({
     mutationFn: () => AddToCart(productId),
 
     onSuccess: (res) => {
-      console.log("Product added successfully:", res);
+      console.log("Add to cart result:", res);
 
-      // Update cart data after successfully adding the product
+      if (!res.success) {
+        toast.error(res.message);
+        return;
+      }
+
+      toast.success("Product added to cart");
+
       queryClient.invalidateQueries({
         queryKey: ["cart"],
       });
@@ -34,26 +36,23 @@ export default function AddBtn({
 
     onError: (error) => {
       console.error("Error adding product:", error);
+
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Something went wrong"
+      );
     },
   });
 
   return (
-    <>
-      <button
-        onClick={() => addProduct()}
-        className={cls}
-        disabled={isPending}
-      >
-        {isPending ? "Adding..." : child}
-      </button>
-
-      {isError && (
-        <p className="text-red-500 text-sm">
-          {error instanceof Error
-            ? error.message
-            : "Something went wrong"}
-        </p>
-      )}
-    </>
+    <button
+      type="button"
+      onClick={() => addProduct()}
+      className={cls}
+      disabled={isPending}
+    >
+      {isPending ? "Adding..." : child}
+    </button>
   );
 }
