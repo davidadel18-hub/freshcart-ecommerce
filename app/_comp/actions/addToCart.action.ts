@@ -3,20 +3,20 @@
 import { getMyToken } from "@/app/utilitis/getToken";
 
 export async function AddToCart(productId: string) {
-  const token = await getMyToken();
-
-  console.log("Token exists:", !!token);
-  console.log("Token length:", token?.length);
-
-  // User is not logged in
-  if (!token) {
-    return {
-      success: false,
-      message: "Please Login",
-    };
-  }
-
   try {
+    const token = await getMyToken();
+
+    console.log("Token exists:", !!token);
+    console.log("Token length:", token?.length);
+
+    // User is not logged in
+    if (!token) {
+      return {
+        success: false,
+        message: "Please Login",
+      };
+    }
+
     const response = await fetch(
       `${process.env.NEXTAUTH_URL}/api/addProduct`,
       {
@@ -47,7 +47,7 @@ export async function AddToCart(productId: string) {
       data: payload,
     };
   } catch (error: unknown) {
-    console.error("Catch Error Details:", error);
+    console.error("AddToCart Error:", error);
 
     return {
       success: false,
