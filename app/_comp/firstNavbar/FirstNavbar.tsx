@@ -9,7 +9,7 @@ export default function TopUtilityBar() {
   const sessionData =  useSession()
 
     return (
-        <div className="w-full  border-b border-gray-200 hidden lg:block">
+        <div className="w-full  border-b border-gray-200  lg:block">
             <div className="container mx-auto px-4 py-2 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-600 gap-2">
 
                 {/* Left Side: Marketing Info */}
